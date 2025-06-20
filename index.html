@@ -785,21 +785,25 @@
 
         // 以下是暗黑模式相关
         // 初始化主题（仅跟随系统）
-        function initTheme() {
-            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const theme = systemPrefersDark ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', theme);
+        function setThemeFromSystem() {
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
         }
 
-        // iOS/Android兼容：使用旧版监听方式
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        if (typeof mediaQuery.addEventListener === 'function') {
-            mediaQuery.addEventListener('change', initTheme);
-        } else if (typeof mediaQuery.addListener === 'function') {
-            mediaQuery.addListener(initTheme); // 旧版WebKit支持
-        }
+        // 初始化主题（兼容 iOS、Android）
+        document.addEventListener('DOMContentLoaded', () => {
+            setThemeFromSystem();
 
-        document.addEventListener('DOMContentLoaded', initTheme);
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            
+            // 监听系统主题变化（兼容老旧 WebKit）
+            if (mediaQuery.addEventListener) {
+            mediaQuery.addEventListener('change', setThemeFromSystem);
+            } else if (mediaQuery.addListener) {
+            mediaQuery.addListener(setThemeFromSystem);
+            }
+        });
+
 
 
     </script>
