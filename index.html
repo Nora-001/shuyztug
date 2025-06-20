@@ -861,6 +861,24 @@
             /* 其他元素覆盖... */
         `;
         document.head.appendChild(fallbackStyle);
+
+        // 在页面加载时检测
+        window.addEventListener('load', () => {
+            const isDarkSystem = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const isMobile = window.innerWidth <= 768;
+            
+            if (isDarkSystem && isMobile) {
+                // 添加强制暗色类
+                document.documentElement.classList.add('force-dark');
+                
+                // 如果5秒后样式仍未应用
+                setTimeout(() => {
+                if (!getComputedStyle(document.body).backgroundColor.includes('26')) {
+                    document.documentElement.style.setProperty('--bg-color', '#1a1a1a', 'important');
+                        }
+                    }, 5000);
+                }
+            });
         }
         // 初始化主题（仅跟随系统）
         /*function initTheme() {
