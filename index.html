@@ -370,6 +370,24 @@
                 --menu-bg: #222222d9;              /* 暗色菜单背景 */
             }
     </style>
+    <script>
+        function setThemeFromSystem() {
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+        }
+
+        // 设置初始主题
+        setThemeFromSystem();
+
+        // 响应用户系统主题变化
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mediaQuery.addEventListener) {
+            mediaQuery.addEventListener('change', setThemeFromSystem);
+        } else if (mediaQuery.addListener) {
+            // 兼容旧浏览器
+            mediaQuery.addListener(setThemeFromSystem);
+        }
+        </script>
 </head>
 <body>
     <!-- 导航栏 -->
