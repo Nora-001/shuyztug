@@ -724,7 +724,7 @@
                 </ul>
             </div>
         </div>
-
+    <div id="dark-mode-fallback" style="display:none;"></div>
     
     <script>
         
@@ -900,6 +900,16 @@
         // 初始化
         document.addEventListener('DOMContentLoaded', initTheme);*/
 
+        (function() {
+            const fallback = document.getElementById('dark-mode-fallback');
+            const testColor = getComputedStyle(fallback).color;
+            
+            if (testColor === 'rgb(0, 0, 0)') { // 检测是否亮色
+            const style = document.createElement('style');
+            style.textContent = `body { background: #111!important; }`;
+            document.head.appendChild(style);
+            }
+        })();
     </script>
     <!-- 底部长方形 -->
     <footer class="footer">
