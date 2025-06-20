@@ -351,6 +351,7 @@
             --navbar-mobiletext-color: #003d74;  /* 移动端导航栏文字颜色 */
             --hover-boarder: #00000010;          /* 悬停边框颜色（极浅黑） */
             --menu-bg: rgba(0, 61, 116, 0.85);  /* 折叠菜单背景颜色 */
+            --mobile-force-dark: 1;               /* 添加手机专属暗色变量，用作JS检测标志 */
         }
 
         /* 暗色主题变量（系统偏好触发,即跟随系统）*/
@@ -374,20 +375,20 @@
 
         /* 针对手机的暗色模式增强 */
         @media (prefers-color-scheme: dark) and (max-width: 768px) {
-        body {
-            /* 强制覆盖可能被浏览器忽略的变量 */
-            background-color: var(--bg-color) !important;
-            color: var(--text-color) !important;
-        }
-        
-        /* 特别处理移动端导航栏 */
-        .navbar {
-            background-color: var(--navbar-bg) !important;
-        }
-        
-        .mobile-title {
-            background-color: rgba(34, 34, 34, 0.85) !important;
-        }
+            body {
+                /* 强制覆盖可能被浏览器忽略的变量 */
+                background-color: #1a1a1a !important;
+                color: #e0e0e0 !important;
+            }
+            
+            /* 特别处理移动端导航栏 */
+            .navbar {
+                background-color: #222 !important;
+            }
+            
+            .mobile-title {
+                background-color: rgba(34, 34, 34, 0.85) !important;
+            }
         }
     </style>
 </head>
@@ -826,6 +827,41 @@
             }
         }
 
+        // 在<head>最前面添加
+        const isMobileDarkSupported = () => {
+        // 检测是否是真的手机浏览器
+        const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+        const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
+        
+        // 创建测试元素
+        const testEl = document.createElement('div');
+        testEl.style.display = 'none';
+        document.body.appendChild(testEl);
+        
+        // 测试媒体查询支持
+        testEl.style.setProperty('color', 'red', 'important');
+        const isSupported = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        // 特殊处理微信浏览器
+        if (isWeChat && isMobile) {
+            document.documentElement.classList.add('wechat-dark-fix');
+        }
+        
+        return isSupported;
+        }
+
+        if (!isMobileDarkSupported()) {
+        // 如果不支持，添加回退样式
+        const fallbackStyle = document.createElement('style');
+        fallbackStyle.textContent = `
+            .wechat-dark-fix {
+            background-color: #121212 !important;
+            color: #f0f0f0 !important;
+            }
+            /* 其他元素覆盖... */
+        `;
+        document.head.appendChild(fallbackStyle);
+        }
         // 初始化主题（仅跟随系统）
         /*function initTheme() {
             const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
