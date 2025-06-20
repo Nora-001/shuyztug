@@ -351,7 +351,6 @@
             --navbar-mobiletext-color: #003d74;  /* 移动端导航栏文字颜色 */
             --hover-boarder: #00000010;          /* 悬停边框颜色（极浅黑） */
             --menu-bg: rgba(0, 61, 116, 0.85);  /* 折叠菜单背景颜色 */
-            --mobile-force-dark: 1;               /* 添加手机专属暗色变量，用作JS检测标志 */
         }
 
         /* 暗色主题变量（系统偏好触发,即跟随系统）*/
@@ -370,24 +369,6 @@
                 --navbar-mobiletext-color: #ffffff; /* 移动端亮色文字 */
                 --hover-boarder: #e9e9e980;        /* 悬停边框颜色（浅白） */
                 --menu-bg: #222222d9;              /* 暗色菜单背景 */
-            }
-        }
-
-        /* 针对手机的暗色模式增强 */
-        @media (prefers-color-scheme: dark) and (max-width: 768px) {
-            body {
-                /* 强制覆盖可能被浏览器忽略的变量 */
-                background-color: #1a1a1a !important;
-                color: #e0e0e0 !important;
-            }
-            
-            /* 特别处理移动端导航栏 */
-            .navbar {
-                background-color: #222 !important;
-            }
-            
-            .mobile-title {
-                background-color: rgba(34, 34, 34, 0.85) !important;
             }
         }
     </style>
@@ -724,7 +705,7 @@
                 </ul>
             </div>
         </div>
-    <div id="dark-mode-fallback" style="display:none;"></div>
+
     
     <script>
         
@@ -802,114 +783,7 @@
         });
         
 
-        // 以下是暗黑模式相关
-        // 检测是否是问题浏览器（如微信内置浏览器）
-        function isProblemBrowser() {
-        return /MicroMessenger|QQBrowser|UCBrowser/i.test(navigator.userAgent);
-        }
 
-        // 强制应用暗色模式（如果系统是暗色但CSS未生效）
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            // 添加备用class
-            document.documentElement.classList.add('system-dark-mode');
-            
-            // 如果是问题浏览器，添加更强制性的样式
-            if (isProblemBrowser()) {
-                const style = document.createElement('style');
-                style.innerHTML = `
-                .system-dark-mode {
-                    --bg-color: #1a1a1a !important;
-                    --text-color: #e0e0e0 !important;
-                    /* 其他需要强制覆盖的变量... */
-                }
-                `;
-                document.head.appendChild(style);
-            }
-        }
-
-        // 在<head>最前面添加
-        const isMobileDarkSupported = () => {
-        // 检测是否是真的手机浏览器
-        const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
-        const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
-        
-        // 创建测试元素
-        const testEl = document.createElement('div');
-        testEl.style.display = 'none';
-        document.body.appendChild(testEl);
-        
-        // 测试媒体查询支持
-        testEl.style.setProperty('color', 'red', 'important');
-        const isSupported = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        
-        // 特殊处理微信浏览器
-        if (isWeChat && isMobile) {
-            document.documentElement.classList.add('wechat-dark-fix');
-        }
-        
-        return isSupported;
-        }
-
-        if (!isMobileDarkSupported()) {
-        // 如果不支持，添加回退样式
-        const fallbackStyle = document.createElement('style');
-        fallbackStyle.textContent = `
-            .wechat-dark-fix {
-            background-color: #121212 !important;
-            color: #f0f0f0 !important;
-            }
-            /* 其他元素覆盖... */
-        `;
-        document.head.appendChild(fallbackStyle);
-
-        // 在页面加载时检测
-        window.addEventListener('load', () => {
-            const isDarkSystem = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const isMobile = window.innerWidth <= 768;
-            
-            if (isDarkSystem && isMobile) {
-                // 添加强制暗色类
-                document.documentElement.classList.add('force-dark');
-                
-                // 如果5秒后样式仍未应用
-                setTimeout(() => {
-                if (!getComputedStyle(document.body).backgroundColor.includes('26')) {
-                    document.documentElement.style.setProperty('--bg-color', '#1a1a1a', 'important');
-                        }
-                    }, 5000);
-                }
-            });
-        }
-        // 初始化主题（仅跟随系统）
-        /*function initTheme() {
-            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (systemPrefersDark) {
-                document.body.classList.add('dark-mode');
-                document.documentElement.setAttribute('data-theme', 'dark');
-            } else {
-                document.body.classList.remove('dark-mode');
-                document.documentElement.setAttribute('data-theme', 'light');
-            }
-        }
-
-        // 监听系统主题变化
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-            initTheme(); // 始终跟随系统变化
-        });
-
-        // 初始化
-        document.addEventListener('DOMContentLoaded', initTheme);*/
-
-        (function() {
-            const fallback = document.getElementById('dark-mode-fallback');
-            const testColor = getComputedStyle(fallback).color;
-            
-            if (testColor === 'rgb(0, 0, 0)') { // 检测是否亮色
-            const style = document.createElement('style');
-            style.textContent = `body { background: #111!important; }`;
-            document.head.appendChild(style);
-            }
-        })();
     </script>
     <!-- 底部长方形 -->
     <footer class="footer">
