@@ -392,74 +392,28 @@
 
         /* 移动端特殊保障（最大优先级） */
         @media (max-width: 768px) {
-            :root[data-theme="light"] {
-                --bg-color: #f5f5f5;                 /* 页面背景色 */
-                --text-color: #000;                  /* 主要文字颜色 */
-                --head-text-color: #003d74;          /* 标题文字颜色 */
-                --path-color: #045699;               /* 路径链接颜色 */
-                --card-bg: #b1cfec95;                /* 卡片背景色（带透明度） */
-                --card-border: 0px dashed #003d74;   /* 卡片边框样式 */
-                --card-title-bg: #ffffffd9;          /* 卡片标题背景（原透明度为0.85，近似取d9） */
-                --footer-bg: #003d74;                /* 页脚背景色 */
-                --navbar-bg: #003d74;                /* 导航栏背景色 */
-                --navbar-mobilebg-color: #ffffffda;  /* 移动端导航栏背景 */ 
-                --navbar-mobiletext-color: #003d74;  /* 移动端导航栏文字颜色 */
-                --hover-boarder: #00000010;          /* 悬停边框颜色（极浅黑） */
-                --menu-bg: rgba(0, 61, 116, 0.85);  /* 折叠菜单背景颜色 */
             }
-            
-            :root[data-theme="dark"] {
-                --bg-color: #1a1a1a;               /* 暗色背景 */
-                --text-color: #e0e0e0;             /* 亮色文字 */
-                --head-text-color: #87b8e5;        /* 标题颜色（原推荐#b1cfec） */
-                --path-color: #c7e4ffe8;           /* 路径链接颜色 */
-                --card-bg: #2d2d2d;                /* 暗色卡片背景 */
-                --card-border: 0px solid #444;     /* 暗色边框 */
-                --card-title-bg: #3f3f3f;          /* 暗色标题背景 */
-                --footer-bg: #222;                 /* 暗色页脚 */
-                --navbar-bg: #222;                 /* 暗色导航栏（原推荐#00274d） */
-                --navbar-mobilebg-color: #222222d9; /* 移动端暗色导航栏 */ 
-                --navbar-mobiletext-color: #ffffff; /* 移动端亮色文字 */
-                --hover-boarder: #e9e9e980;        /* 悬停边框颜色（浅白） */
-                --menu-bg: #222222d9;              /* 暗色菜单背景 */
-            }
-        }
-
     </style>
         <script>
-        // 替换为以下增强版代码
+        // 在<head>中的script替换为：
         function applySystemTheme() {
         const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const theme = isDark ? 'dark' : 'light';
-        
-        // 设置文档属性
-        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
 
-        // 仅对移动端且暗色模式时注入保障样式
+        // 移动端特殊处理
         if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
-            // 移除旧样式（避免重复注入）
             const oldStyle = document.getElementById('mobile-theme-fallback');
             if (oldStyle) oldStyle.remove();
 
-            // 仅在确认暗色模式时注入
             if (isDark) {
             const style = document.createElement('style');
             style.id = 'mobile-theme-fallback';
             style.textContent = `
-                :root {
-                    --bg-color: #1a1a1a;
-                    --text-color: #e0e0e0;
-                    --head-text-color: #87b8e5;
-                    --path-color: #c7e4ffe8;
-                    --card-bg: #2d2d2d;
-                    --card-border: 0px solid #444;
-                    --card-title-bg: #3f3f3f;
-                    --footer-bg: #222;
-                    --navbar-bg: #222;
-                    --navbar-mobilebg-color: #222222d9;
-                    --navbar-mobiletext-color: #ffffff;
-                    --hover-boarder: #e9e9e980;
-                    --menu-bg: #222222d9;
+                :root, :root[data-theme="dark"] {
+                --bg-color: #1a1a1a !important;
+                --text-color: #e0e0e0 !important;
+                --navbar-bg: #222 !important;
+                --card-bg: #2d2d2d !important;
                 }
                 body {
                 background-color: var(--bg-color) !important;
@@ -471,28 +425,28 @@
         }
         }
 
-        // 立即执行一次（初始化）
+        // 初始化执行
         applySystemTheme();
 
-        // 监听系统主题变化（兼容所有浏览器）
+        // 优化后的监听器
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const handleChange = () => {
+        const handleChange = (e) => {
         applySystemTheme();
-        // 手机端延迟二次检测
+        // 手机端延迟处理
         if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
-            setTimeout(applySystemTheme, 100);
+            setTimeout(() => {
+            if (e.matches !== (document.documentElement.getAttribute('data-theme') === 'dark')) {
+                applySystemTheme();
+            }
+            }, 200);
         }
         };
 
+        // 使用最可靠的监听方式
         if (mediaQuery.addEventListener) {
         mediaQuery.addEventListener('change', handleChange);
-        } else if (mediaQuery.addListener) {
+        } else {
         mediaQuery.addListener(handleChange);
-        }
-
-        // 微信浏览器每3秒检查一次（防失效）
-        if (/MicroMessenger/i.test(navigator.userAgent)) {
-        setInterval(applySystemTheme, 3000);
         }
         </script>
 </head>
@@ -907,82 +861,20 @@
         
 
         // 以下是暗黑模式相关
-        // 终极保障检查（确保主题正确应用）
+        // 替换为单一保障检查
         window.addEventListener('load', function() {
-        // 检测系统主题与实际应用是否一致
-        const systemIsDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const appliedIsDark = getComputedStyle(document.documentElement)
-            .getPropertyValue('--bg-color').trim() === '#1a1a1a';
+        // 最终一致性检查
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const appliedIsDark = document.documentElement.getAttribute('data-theme') === 'dark';
         
-        // 如果不一致，强制修正
-        if (systemIsDark !== appliedIsDark) {
-            document.documentElement.setAttribute('data-theme', systemIsDark ? 'dark' : 'light');
-            
-            // 移动端额外强制样式
-            if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
-            document.documentElement.style.setProperty(
-                '--bg-color', 
-                systemIsDark ? '#1a1a1a' : '#f5f5f5',
-                'important'
-
-            );
-            
-            //再补一手
-        if (systemIsDark && /Android|iPhone|iPad/i.test(navigator.userAgent)) {
-            const fallbackStyle = document.createElement('style');
-            fallbackStyle.id = 'mobile-theme-enforcer';
-            fallbackStyle.textContent = `
-                :root {
-                    --bg-color: #1a1a1a !important;
-                    --text-color: #e0e0e0 !important;
-                    --head-text-color: #87b8e5 !important;
-                    --path-color: #c7e4ffe8 !important;
-                    --card-bg: #2d2d2d !important;
-                    --card-border: 0px solid #444 !important;
-                    --card-title-bg: #3f3f3f !important;
-                    --footer-bg: #222 !important;
-                    --navbar-bg: #222 !important;
-                    --navbar-mobilebg-color: #222222d9 !important;
-                    --navbar-mobiletext-color: #ffffff !important;
-                    --hover-boarder: #e9e9e980 !important;
-                    --menu-bg: #222222d9 !important;
-                }
-                body {
-                    background-color: var(--bg-color) !important;
-                    color: var(--text-color) !important;
-                }
-            `;
-            document.head.appendChild(fallbackStyle);
+        if (isDark !== appliedIsDark) {
+            applySystemTheme();
         }
 
-            }
+        // 移动端额外保障
+        if (/Android|iPhone|iPad/i.test(navigator.userAgent) && isDark) {
+            document.documentElement.style.setProperty('--navbar-bg', '#222', 'important');
         }
-        
-        // 亮色模式特别保障
-        if (!systemIsDark) {
-            document.body.style.backgroundColor = '#f5f5f5';
-        }
-        });
-
-
-        // 亮色模式终极保障（确保不被覆盖）
-        window.addEventListener('load', function() {
-        // 只在亮色模式时执行保护
-        if (!window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            // 恢复关键亮色变量
-            document.documentElement.style.setProperty('--bg-color', '#f5f5f5');
-            document.documentElement.style.setProperty('--text-color', '#000');
-            
-            // 特别保护移动端导航栏
-            if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
-            document.documentElement.style.setProperty('--navbar-bg', '#003d74');
-            document.documentElement.style.setProperty('--navbar-mobilebg-color', '#ffffffda');
-            }
-        }
-        
-        // 调试用（发布时可删除）
-        console.log('当前主题:', document.documentElement.getAttribute('data-theme'));
-        console.log('实际背景色:', getComputedStyle(document.body).backgroundColor);
         });
     </script>
     <!-- 底部长方形 -->
